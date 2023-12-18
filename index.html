@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asteroid Landing Game</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      background-color: black;
+    }
+
+    #speedDisplay {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    #startOverlay,
+    #gameOverOverlay,
+    #youWinOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      text-align: center;
+      display: none;
+    }
+
+    #youWinOverlay {
+      background: rgba(0, 255, 0, 0.7);
+    }
+
+    #gameOverOverlay {
+    background: rgba(255, 0, 0, 0.7);
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="gameCanvas"></canvas>
+<div id="speedDisplay">Vertical Speed: 0</div>
+<div id="startOverlay">Click to Start</div>
+<div id="gameOverOverlay">Game Over<br>Click to Restart</div>
+<div id="youWinOverlay">You Win!<br>Click to Restart</div>
+
+<script>
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+
+  // Set canvas size to be the same as the window size
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const lander = {
+    x: canvas.width / 2, 
+    y: canvas.height / 3, 
+    width: 30, 
+    height: 15, 
+    velocityY: 0,
+    f: 0, 
+    dt: 1, 
+    g: -0.05, 
+    thrust: -0.15,
+  };
+
+  let gameStarted = false;
+  let gameOver = false;
+  let youWin = false;
+  document.getElementById("startOverlay").style.display = "flex";
+
+  function update() {
+    if (!gameStarted) {
+      document.getElementById("startOverlay").style.display = "flex";
+      requestAnimationFrame(update);
+      return;
+    }
+
+    if (lander.y >= canvas.height - lander.height - 5) {
+      if (Math.abs(lander.velocityY) > 1) {
+        gameOver = true;
+      } else {
+        youWin = true;
+      }
+    }
+
+    if (gameOver) {
+      document.getElementById("gameOverOverlay").style.display = "flex";
+    } else if (youWin) {
+      document.getElementById("youWinOverlay").style.display = "flex";
+    } else {
+      lander.velocityY = lander.velocityY - (lander.g - lander.f) * lander.dt;
+
+      lander.y += lander.velocityY;
+
+      if (lander.y > canvas.height - lander.height) {
+        lander.y = canvas.height - lander.height;
+        lander.velocityY = 0;
+      }
+
+      // Update speed display
+      const verticalSpeed = lander.velocityY.toFixed(2);
+      document.getElementById("speedDisplay").innerHTML = `Vertical Speed: ${verticalSpeed}`;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      ctx.fillRect(lander.x - lander.width / 2, lander.y - lander.height / 2, lander.width, lander.height);
+
+      requestAnimationFrame(update);
+    }
+  }
+
+  function handleKeyPress(event) {
+    if (event.key === " ") {
+      lander.f = lander.thrust;
+      lander.velocityY -= lander.thrust;
+    }
+  }
+
+  function handleKeyRelease(event) {
+    if (event.key === " ") {
+      lander.f = 0;
+    }
+  }
+
+  function handleClick() {
+    gameStarted = true;
+    gameOver = false;
+    youWin = false;
+    document.getElementById("startOverlay").style.display = "none";
+    document.getElementById("gameOverOverlay").style.display = "none";
+    document.getElementById("youWinOverlay").style.display = "none";
+    lander.y = canvas.height / 3;
+    lander.velocityY = 0;
+    update();
+  }
+
+  document.addEventListener("keydown", handleKeyPress);
+  document.addEventListener("keyup", handleKeyRelease);
+  document.addEventListener("click", handleClick);
+
+</script>
+
+</body>
+</html>
