@@ -119,6 +119,9 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "white";
       ctx.fillRect(lander.x - lander.width / 2, lander.y - lander.height / 2, lander.width, lander.height);
+      ctx.fillStyle = "white";
+      ctx.fillRect(lander.x - lander.width / 2 - 2, lander.y + lander.height / 4, 4, 15);
+      ctx.fillRect(lander.x + lander.width / 2 - 2, lander.y + lander.height / 4, 4, 15);
 
       requestAnimationFrame(update);
     }
